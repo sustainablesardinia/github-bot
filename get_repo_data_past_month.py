@@ -20,14 +20,13 @@ from github import Github
 import datetime
 import sys
 import abc
-import tempfile
 
 
 class LanguageFormatter:
     @classmethod
     def __subclasshook__(cls, subclass):
-        return (hasattr(subclass, '_get_month_name') and callable(subclass._get_month_name) and                 
-                hasattr(subclass, 'print_post_title') and callable(subclass.print_post_title) and 
+        return (hasattr(subclass, '_get_month_name') and callable(subclass._get_month_name) and
+                hasattr(subclass, 'print_post_title') and callable(subclass.print_post_title) and
                 hasattr(subclass, 'print_post_description') and callable(subclass.print_post_description) and
                 hasattr(subclass, 'print_post_beginning') and callable(subclass.print_post_beginning) and
                 hasattr(subclass, 'print_repo_header') and callable(subclass.print_repo_header) and
@@ -35,7 +34,8 @@ class LanguageFormatter:
                 hasattr(subclass, 'print_commit_committer') and callable(subclass.print_commit_committer) and
                 hasattr(subclass, 'print_commit_author') and callable(subclass.print_commit_author) and
                 hasattr(subclass, 'print_automatic_commit') and callable(subclass.print_automatic_commit) and
-                hasattr(subclass, 'print_commit_stats') and callable(subclass.print_commit_stats) or 
+                hasattr(subclass, 'print_commit_stats') and callable(subclass.print_commit_stats) and
+                hasattr(subclass, 'get_file_name') and callable(subclass.get_file_name) or
                 NotImplemented)
 
     def __init__(self, language):
@@ -58,12 +58,12 @@ class LanguageFormatter:
 
     @abc.abstractmethod
     def print_post_description(self):
-        raise NotImplementedError   
-        
+        raise NotImplementedError
+
     @abc.abstractmethod
     def print_post_beginning(self):
         raise NotImplementedError
-    
+
     @abc.abstractmethod
     def print_repo_header(self, full_name, url):
         raise NotImplementedError
@@ -88,17 +88,21 @@ class LanguageFormatter:
     def print_commit_stats(self):
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def get_file_name(self):
+        raise NotImplementedError
+
 
 class EnglishFormatter(LanguageFormatter):
     def __init__(self):
-        super().__init__("eng")
+        super().__init__("en")
 
     def _get_month_name(self, today):
         return today.strftime("%B")
 
     def print_post_title(self, today):
-        return f"What's happening within Sustainable Sardinia (as of {super()._date_string(today)})?"
-    
+        return f"What's happening within Sustainable Sardinia? Update as of {super()._date_string(today)}"
+
     def print_post_description(self):
         return "An overview of what was done in the projects within Sustainable Sardinia in the past month."
 
@@ -123,6 +127,9 @@ class EnglishFormatter(LanguageFormatter):
     def print_commit_stats(self, additions, deletions):
         return f"_Stats: {additions} lines added, {deletions} lines removed_."
 
+    def get_file_name(self):
+        return "what-happening"
+
 
 class SardinianFormatter(LanguageFormatter):
     def __init__(self):
@@ -130,14 +137,15 @@ class SardinianFormatter(LanguageFormatter):
 
     def _get_month_name(self, today):
         month_number = today.month
-        month_names = ["Gennàrgiu", "Friàrgiu", "Martzu", "Abrili", "Maju", "Làmpadas", "Argiolas", "Austu", "Cabudanni", "Ladàmini", "Donniasantu", "Idas"]
+        month_names = ["Gennàrgiu", "Friàrgiu", "Martzu", "Abrili", "Maju", "Làmpadas",
+                       "Argiolas", "Austu", "Cabudanni", "Ladàmini", "Donniasantu", "Idas"]
         return f"de {month_names[month_number-1]}"
 
     def print_post_title(self, today):
-        return f"Ita ant fatu in Sustainable Sardinia (finas a su {super()._date_string(today)})?"
-    
+        return f"Ita ant fatu in Sustainable Sardinia? Sceda finsas a su {super()._date_string(today)}"
+
     def print_post_description(self):
-        return "Un' arresumu de su ant fatu in is fainas de Sustainable Sardinia su mesi passau."
+        return "Un' arresumu de su chi ant fatu in is fainas de Sustainable Sardinia in su mesi passau."
 
     def print_post_beginning(self):
         return "Un' àteru mesi est passau, e prus traballu puru dd' ant portau innantis in Sustainable Sardinia. Andaus a biri su chi ant fatu de 30 diis a oi."
@@ -160,19 +168,23 @@ class SardinianFormatter(LanguageFormatter):
     def print_commit_stats(self, additions, deletions):
         return f"_Statìsticas: {additions} lìnias de còdixi aciuntas, {deletions} lìnias de còdixi bogadas_."
 
+    def get_file_name(self):
+        return "ita-fatu"
+
 
 class ItalianFormatter(LanguageFormatter):
     def __init__(self):
-        super().__init__("ita")
+        super().__init__("it")
 
     def _get_month_name(self, today):
         month_number = today.month
-        month_names = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"]
+        month_names = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno",
+                       "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"]
         return f"{month_names[month_number-1]}"
 
     def print_post_title(self, today):
-        return f"Cosa è stato fatto in Sustainable Sardinia (fino al {super()._date_string(today)})?"
-    
+        return f"Cosa è stato fatto in Sustainable Sardinia? Aggiornamento fino all {super()._date_string(today)}"
+
     def print_post_description(self):
         return "Un riassunto di ciò che è stato fatto nei progetti di Sustainable Sardinia nello scorso mese."
 
@@ -197,53 +209,79 @@ class ItalianFormatter(LanguageFormatter):
     def print_commit_stats(self, additions, deletions):
         return f"_Statistiche: {additions} linee di codice aggiunte, {deletions} linee di codice rimosse_."
 
+    def get_file_name(self):
+        return "cosa-fatto"
+
 
 class FileWriter():
-    def __init__(self, formatter : LanguageFormatter):
+    def __init__(self, formatter: LanguageFormatter, repo, today: datetime.datetime):
         self.formatter = formatter
         self.commit_count = 0
-        self.file = tempfile.NamedTemporaryFile(
-            mode='w', prefix=formatter.language, delete=False)
+        self.repo = repo
+        self.file_content = ""
+        self.today = today.date()
 
     def _add_line(self, line):
-        self.file.write(line)
-        
+        self.file_content += line + "\n"
+
     def _add_newline(self):
-        self.file.write("\n")
-        
+        self.file_content += "\n"
+
     def print_header(self, today):
         self._add_line("---")
         self._add_line(f"title: {self.formatter.print_post_title(today)}")
-        self._add_line(f"image: /assets/images/sunrise.webp")
-        self._add_line(f"description: {self.formatter.print_post_description()}")
+        self._add_line(f"image: /assets/images/workers.webp")
+        self._add_line(
+            f"description: {self.formatter.print_post_description()}")
         date_string = str(today.date())
         self._add_line(f"reference: activity_{date_string.replace('-', '_')}")
         self._add_line("---")
         self._add_newline()
+        self._add_line(self.formatter.print_post_beginning())
+        self._add_newline()
 
     def print_repo(self, repo):
-        self._add_line(self.formatter.print_repo_header(repo.full_name, repo.url))
+        print(f"Reading repo {repo.full_name}")
+        self._add_line(self.formatter.print_repo_header(
+            repo.full_name, repo.html_url))
         self._add_newline()
 
     def print_commit(self, commit):
         self.commit_count += 1
-        
+
         commit_sha = str(commit.sha)[0:6]
-        log_string = [self.formatter.print_commit_header(commit_sha, commit.url, commit.commit.committer.date)]
+        print(f"Reading commit {commit_sha}")
+        log_string = [self.formatter.print_commit_header(
+            commit_sha, commit.html_url, commit.commit.committer.date)]
 
         if commit.author:
-            log_string += [self.formatter.print_commit_author(commit.author.login, commit.author.url, commit.author.name)]
+            log_string += [self.formatter.print_commit_author(
+                commit.author.login, commit.author.html_url, commit.author.name)]
         elif commit.committer:
-            log_string += [self.formatter.print_commit_committer(commit.committer.name)]
+            log_string += [self.formatter.print_commit_committer(
+                commit.committer.name)]
         else:
             log_string += [self.formatter.print_automatic_commit()]
-        log_string[-1] +=  ":"
-        
+        log_string[-1] += ":"
+
         log_string += [f"{commit.commit.message}"]
         self._add_line(" ".join(log_string))
-        
-        self._add_line(self.formatter.print_commit_stats(commit.stats.additions, commit.stats.deletions))
+
         self._add_newline()
+        self._add_line(self.formatter.print_commit_stats(
+            commit.stats.additions, commit.stats.deletions))
+        self._add_newline()
+
+    def commit_new_post(self, is_debug_mode=False):
+        file_name = str(self.today) + "-" + \
+            self.formatter.get_file_name() + "-" + str(self.today) + ".md"
+        post_path = "/".join([self.formatter.language, "_posts", file_name])
+        post_message = f"Adding update post for {self.today} (Language: {self.formatter.language})"
+        print(f"Committing {post_path} with message: {post_message}")
+        if is_debug_mode:
+            print(self.file_content)
+        else:
+            self.repo.create_file(post_path, post_message, self.file_content)
 
 
 def _print_post(today, writer, organization):
@@ -266,11 +304,28 @@ def _print_post(today, writer, organization):
 if __name__ == "__main__":
     github = Github(sys.argv[1])
     organization = github.get_organization("sustainablesardinia")
-    today = datetime.datetime.today()
-    writers = [FileWriter(EnglishFormatter()), FileWriter(SardinianFormatter()), FileWriter(ItalianFormatter())]
+    if len(sys.argv) > 2:
+        today = datetime.datetime.strptime(sys.argv[2], "%Y-%m-%d")
+    else:
+        today = datetime.datetime.today()
+    print(f"Date is: {today}")
+    is_debug_mode = False
+    if len(sys.argv) > 3 and "debug" in sys.argv[3]:
+        is_debug_mode = True
+        print("Running in debug mode")
 
+    write_repo = github.get_repo(
+        "sustainablesardinia/sustainablesardinia.github.io")
+
+    writers = [FileWriter(EnglishFormatter(), write_repo, today),
+               FileWriter(SardinianFormatter(), write_repo, today),
+               FileWriter(ItalianFormatter(), write_repo, today)]
+
+    commit_count = 0
     for writer in writers:
         _print_post(today, writer, organization)
+        commit_count += writer.commit_count
 
-    for writer in writers:
-        print(writer.commit_count)
+    if commit_count > 0:
+        for writer in writers:
+            writer.commit_new_post(is_debug_mode)

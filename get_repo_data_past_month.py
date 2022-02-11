@@ -1,6 +1,7 @@
 # get_repo_data_past_month.py
 #
-# Beti is informus de su chi ant fatu in Sustainable Sardinia su mesi passau.
+# Boddi is informus de su chi ant fatu in Sustainable Sardinia su mesi passau e
+# scrii un' artìculu in su giassu.
 #
 # Copyright 2022 Sustainable Sardinia
 #
@@ -18,8 +19,8 @@
 
 from github import Github
 import datetime
-import sys
 import abc
+import os
 
 
 class LanguageFormatter:
@@ -301,17 +302,11 @@ def _print_post(today, writer, organization):
             writer.print_commit(commit)
 
 
-if __name__ == "__main__":
-    github = Github(sys.argv[1])
+def _execute_workflow(oauth, today=datetime.datetime.today(), is_debug_mode=True):
+    github = Github(oauth)
     organization = github.get_organization("sustainablesardinia")
-    if len(sys.argv) > 2:
-        today = datetime.datetime.strptime(sys.argv[2], "%Y-%m-%d")
-    else:
-        today = datetime.datetime.today()
     print(f"Date is: {today}")
-    is_debug_mode = False
-    if len(sys.argv) > 3 and "debug" in sys.argv[3]:
-        is_debug_mode = True
+    if is_debug_mode:
         print("Running in debug mode")
 
     write_repo = github.get_repo(
@@ -329,3 +324,12 @@ if __name__ == "__main__":
     if commit_count > 0:
         for writer in writers:
             writer.commit_new_post(is_debug_mode)
+
+
+def lambda_handler(event, context):
+    token = os.environ['GITHUB_TOKEN']
+    id_debug_mode = False
+    if os.environ['DEBUG_MODE']=='1':
+        is_debug_mode = True
+    print(f"Starting lambda: {token}")
+    _execute_workflow(token, is_debug_mode=id_debug_mode)

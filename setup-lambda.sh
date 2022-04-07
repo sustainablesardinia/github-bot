@@ -34,10 +34,10 @@ cd $WORKING_DIR
 
 # Create a new Python environment
 ENVIRONMENT_NAME="myenv"
-PYTHON_VER="python3.7"
+PYTHON_VER="python3.8"
 PYTHON_EXEC=$(which $PYTHON_VER)
 if [ -z "$PYTHON_EXEC" ]; then
-    echo "ERROR: This requires Python 3.7"
+    echo "ERROR: This requires Python 3.8"
     exit -1
 fi
 pip3 install virtualenv

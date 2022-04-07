@@ -290,9 +290,8 @@ def _print_post(today, writer, organization):
     for repo in organization.get_repos():
         commits = repo.get_commits()
 
-        if not commits:
-            continue
-        writer.print_repo(repo)
+        if commits:
+            writer.print_repo(repo)
 
         for commit in commits:
             commit_date = commit.commit.committer.date

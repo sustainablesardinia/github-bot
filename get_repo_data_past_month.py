@@ -1,6 +1,7 @@
 # get_repo_data_past_month.py
 #
-# Beti is informus de su chi ant fatu in Sustainable Sardinia su mesi passau.
+# Boddi is informus de su chi ant fatu in Sustainable Sardinia su mesi passau e
+# scrii un' artìculu in su giassu.
 #
 # Copyright 2022 Sustainable Sardinia
 #
@@ -18,8 +19,13 @@
 
 from github import Github
 import datetime
+<<<<<<< HEAD
 import sys
 import abc
+=======
+import abc
+import os
+>>>>>>> 16ff9c29e1149c34aa12a9050e62ef60348ae339
 
 
 class LanguageFormatter:

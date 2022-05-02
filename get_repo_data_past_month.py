@@ -19,30 +19,39 @@
 
 from github import Github
 import datetime
-<<<<<<< HEAD
 import sys
-import abc
-=======
-import abc
 import os
->>>>>>> 16ff9c29e1149c34aa12a9050e62ef60348ae339
+import abc
 
 
 class LanguageFormatter:
     @classmethod
     def __subclasshook__(cls, subclass):
-        return (hasattr(subclass, '_get_month_name') and callable(subclass._get_month_name) and
-                hasattr(subclass, 'print_post_title') and callable(subclass.print_post_title) and
-                hasattr(subclass, 'print_post_description') and callable(subclass.print_post_description) and
-                hasattr(subclass, 'print_post_beginning') and callable(subclass.print_post_beginning) and
-                hasattr(subclass, 'print_repo_header') and callable(subclass.print_repo_header) and
-                hasattr(subclass, 'print_commit_header') and callable(subclass.print_commit_header) and
-                hasattr(subclass, 'print_commit_committer') and callable(subclass.print_commit_committer) and
-                hasattr(subclass, 'print_commit_author') and callable(subclass.print_commit_author) and
-                hasattr(subclass, 'print_automatic_commit') and callable(subclass.print_automatic_commit) and
-                hasattr(subclass, 'print_commit_stats') and callable(subclass.print_commit_stats) and
-                hasattr(subclass, 'get_file_name') and callable(subclass.get_file_name) or
-                NotImplemented)
+        return (
+            hasattr(subclass, "_get_month_name")
+            and callable(subclass._get_month_name)
+            and hasattr(subclass, "print_post_title")
+            and callable(subclass.print_post_title)
+            and hasattr(subclass, "print_post_description")
+            and callable(subclass.print_post_description)
+            and hasattr(subclass, "print_post_beginning")
+            and callable(subclass.print_post_beginning)
+            and hasattr(subclass, "print_repo_header")
+            and callable(subclass.print_repo_header)
+            and hasattr(subclass, "print_commit_header")
+            and callable(subclass.print_commit_header)
+            and hasattr(subclass, "print_commit_committer")
+            and callable(subclass.print_commit_committer)
+            and hasattr(subclass, "print_commit_author")
+            and callable(subclass.print_commit_author)
+            and hasattr(subclass, "print_automatic_commit")
+            and callable(subclass.print_automatic_commit)
+            and hasattr(subclass, "print_commit_stats")
+            and callable(subclass.print_commit_stats)
+            and hasattr(subclass, "get_file_name")
+            and callable(subclass.get_file_name)
+            or NotImplemented
+        )
 
     def __init__(self, language):
         self.language = language
@@ -143,8 +152,20 @@ class SardinianFormatter(LanguageFormatter):
 
     def _get_month_name(self, today):
         month_number = today.month
-        month_names = ["Gennàrgiu", "Friàrgiu", "Martzu", "Abrili", "Maju", "Làmpadas",
-                       "Argiolas", "Austu", "Cabudanni", "Ladàmini", "Donniasantu", "Idas"]
+        month_names = [
+            "Gennàrgiu",
+            "Friàrgiu",
+            "Martzu",
+            "Abrili",
+            "Maju",
+            "Làmpadas",
+            "Argiolas",
+            "Austu",
+            "Cabudanni",
+            "Ladàmini",
+            "Donniasantu",
+            "Idas",
+        ]
         return f"de {month_names[month_number-1]}"
 
     def print_post_title(self, today):
@@ -184,8 +205,20 @@ class ItalianFormatter(LanguageFormatter):
 
     def _get_month_name(self, today):
         month_number = today.month
-        month_names = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno",
-                       "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"]
+        month_names = [
+            "Gennaio",
+            "Febbraio",
+            "Marzo",
+            "Aprile",
+            "Maggio",
+            "Giugno",
+            "Luglio",
+            "Agosto",
+            "Settembre",
+            "Ottobre",
+            "Novembre",
+            "Dicembre",
+        ]
         return f"{month_names[month_number-1]}"
 
     def print_post_title(self, today):
@@ -219,7 +252,7 @@ class ItalianFormatter(LanguageFormatter):
         return "cosa-fatto"
 
 
-class FileWriter():
+class FileWriter:
     def __init__(self, formatter: LanguageFormatter, repo, today: datetime.datetime):
         self.formatter = formatter
         self.commit_count = 0
@@ -237,8 +270,7 @@ class FileWriter():
         self._add_line("---")
         self._add_line(f"title: {self.formatter.print_post_title(today)}")
         self._add_line(f"image: /assets/images/workers.webp")
-        self._add_line(
-            f"description: {self.formatter.print_post_description()}")
+        self._add_line(f"description: {self.formatter.print_post_description()}")
         date_string = str(today.date())
         self._add_line(f"reference: activity_{date_string.replace('-', '_')}")
         self._add_line("---")
@@ -248,8 +280,7 @@ class FileWriter():
 
     def print_repo(self, repo):
         print(f"Reading repo {repo.full_name}")
-        self._add_line(self.formatter.print_repo_header(
-            repo.full_name, repo.html_url))
+        self._add_line(self.formatter.print_repo_header(repo.full_name, repo.html_url))
         self._add_newline()
 
     def print_commit(self, commit):
@@ -257,15 +288,20 @@ class FileWriter():
 
         commit_sha = str(commit.sha)[0:6]
         print(f"Reading commit {commit_sha}")
-        log_string = [self.formatter.print_commit_header(
-            commit_sha, commit.html_url, commit.commit.committer.date)]
+        log_string = [
+            self.formatter.print_commit_header(
+                commit_sha, commit.html_url, commit.commit.committer.date
+            )
+        ]
 
         if commit.author:
-            log_string += [self.formatter.print_commit_author(
-                commit.author.login, commit.author.html_url, commit.author.name)]
+            log_string += [
+                self.formatter.print_commit_author(
+                    commit.author.login, commit.author.html_url, commit.author.name
+                )
+            ]
         elif commit.committer:
-            log_string += [self.formatter.print_commit_committer(
-                commit.committer.name)]
+            log_string += [self.formatter.print_commit_committer(commit.committer.name)]
         else:
             log_string += [self.formatter.print_automatic_commit()]
         log_string[-1] += ":"
@@ -274,15 +310,26 @@ class FileWriter():
         self._add_line(" ".join(log_string))
 
         self._add_newline()
-        self._add_line(self.formatter.print_commit_stats(
-            commit.stats.additions, commit.stats.deletions))
+        self._add_line(
+            self.formatter.print_commit_stats(
+                commit.stats.additions, commit.stats.deletions
+            )
+        )
         self._add_newline()
 
     def commit_new_post(self, is_debug_mode=False):
-        file_name = str(self.today) + "-" + \
-            self.formatter.get_file_name() + "-" + str(self.today) + ".md"
+        file_name = (
+            str(self.today)
+            + "-"
+            + self.formatter.get_file_name()
+            + "-"
+            + str(self.today)
+            + ".md"
+        )
         post_path = "/".join([self.formatter.language, "_posts", file_name])
-        post_message = f"Adding update post for {self.today} (Language: {self.formatter.language})"
+        post_message = (
+            f"Adding update post for {self.today} (Language: {self.formatter.language})"
+        )
         print(f"Committing {post_path} with message: {post_message}")
         if is_debug_mode:
             print(self.file_content)
@@ -301,30 +348,25 @@ def _print_post(today, writer, organization):
 
         for commit in commits:
             commit_date = commit.commit.committer.date
-            if (today-commit_date).days > 30:
+            if (today - commit_date).days > 30:
                 continue
             writer.print_commit(commit)
 
 
-if __name__ == "__main__":
-    github = Github(sys.argv[1])
+def _execute_workflow(oauth, today=datetime.datetime.today(), is_debug_mode=True):
+    github = Github(oauth)
     organization = github.get_organization("sustainablesardinia")
-    if len(sys.argv) > 2:
-        today = datetime.datetime.strptime(sys.argv[2], "%Y-%m-%d")
-    else:
-        today = datetime.datetime.today()
     print(f"Date is: {today}")
-    is_debug_mode = False
-    if len(sys.argv) > 3 and "debug" in sys.argv[3]:
-        is_debug_mode = True
+    if is_debug_mode:
         print("Running in debug mode")
 
-    write_repo = github.get_repo(
-        "sustainablesardinia/sustainablesardinia.github.io")
+    write_repo = github.get_repo("sustainablesardinia/sustainablesardinia.github.io")
 
-    writers = [FileWriter(EnglishFormatter(), write_repo, today),
-               FileWriter(SardinianFormatter(), write_repo, today),
-               FileWriter(ItalianFormatter(), write_repo, today)]
+    writers = [
+        FileWriter(EnglishFormatter(), write_repo, today),
+        FileWriter(SardinianFormatter(), write_repo, today),
+        FileWriter(ItalianFormatter(), write_repo, today),
+    ]
 
     commit_count = 0
     for writer in writers:
@@ -334,3 +376,13 @@ if __name__ == "__main__":
     if commit_count > 0:
         for writer in writers:
             writer.commit_new_post(is_debug_mode)
+
+
+def lambda_handler(event, context):
+    """Handler for AWS lambda"""
+    token = os.environ["GITHUB_TOKEN"]
+    id_debug_mode = False
+    if os.environ["DEBUG_MODE"] == "1":
+        is_debug_mode = True
+    print(f"Starting lambda: {token}")
+    _execute_workflow(token, is_debug_mode=id_debug_mode)

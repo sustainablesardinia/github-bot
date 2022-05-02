@@ -50,10 +50,11 @@ deactivate
 # Create zip with existing code
 UPDATED_ZIP="updated_lambda.zip"
 cd $ENVIRONMENT_NAME/lib/$PYTHON_VER/site-packages
-cp -r $CURRENT_DIR/* ./
+cp -r "$CURRENT_DIR"/* ./
 zip -r ../../../../$UPDATED_ZIP .
 
 cd -
 aws lambda update-function-code \
     --function-name $FUNCTION \
-    --zip-file fileb://$UPDATED_ZIP
+    --zip-file fileb://$UPDATED_ZIP \
+    --region eu-west-2

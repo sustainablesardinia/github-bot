@@ -337,13 +337,21 @@ class FileWriter:
             self.repo.create_file(post_path, post_message, self.file_content)
 
 
+def _is_there_any_commit(commits):
+    output = False
+    for commit in commits:
+        output = True
+        break
+    return output
+
+
 def _print_post(today, writer, organization):
     writer.print_header(today)
 
     for repo in organization.get_repos():
         commits = repo.get_commits()
 
-        if commits:
+        if _is_there_any_commit(commits):
             writer.print_repo(repo)
 
         for commit in commits:
